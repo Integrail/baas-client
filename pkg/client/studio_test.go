@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -27,6 +28,11 @@ func TestPerfStudioLogin(t *testing.T) {
 
 	err = p.Sleep("5s")
 	Expect(err).To(BeNil())
+
+	html, err := p.FindVisibleElements([]string{"p", "div", "span", "input"}, "data-llm-id")
+	Expect(err).To(BeNil())
+	Expect(html).NotTo(BeEmpty())
+	fmt.Println(html)
 
 	err = p.SaveScreenshot("studio", "screenshots/studio.png")
 	Expect(err).To(BeNil())

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/savioxavier/termlink"
@@ -43,6 +44,7 @@ type Program interface {
 	WaitReady(selector string) error
 	WaitVisible(selector string) error
 	SaveScreenshot(name string, fileName string) error
+	FindVisibleElements(elements []string, attributeName string) (string, error)
 }
 
 type Reporter interface {
@@ -220,6 +222,14 @@ func (p *program) LlmClick(description string) error {
 func (p *program) LlmSendKeys(description, value string) error {
 	_, err := p.runProgram(fmt.Sprintf("llmSendKeys('%s', '%s')", description, value))
 	return err
+}
+
+func (p *program) FindVisibleElements(elements []string, addAttributeName string) (string, error) {
+	res, err := p.runProgram(fmt.Sprintf("findVisibleElements('%s','%s')", strings.Join(elements, ","), addAttributeName))
+	if err != nil {
+		return "", err
+	}
+	return res.Value.(string), nil
 }
 
 func (p *program) LlmText(description string) (string, error) {
