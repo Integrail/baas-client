@@ -1,0 +1,56 @@
+name: Build BaaS CLI
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    name: Prepare build
+    runs-on: integrail
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: fix permissions on hosted-runner
+        run: |
+          sudo chown -R ubuntu:ubuntu /home/ubuntu || echo "failed to chown"
+      - uses: actions/checkout@v4
+      - name: Get next version
+        uses: reecetech/version-increment@2023.10.2
+        id: version
+        with:
+          scheme: "calver"
+          increment: "patch"
+          use_api: "true"
+
+  build:
+    name: Build BaaS CLI
+    runs-on: integrail
+    needs: prepare
+    steps:
+      - name: fix permissions on hosted-runner
+        run: |
+          sudo chown -R ubuntu:ubuntu /home/ubuntu || echo "failed to chown"
+      - uses: actions/checkout@v4
+      - uses: fregante/setup-git-user@v2
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '^1.22'
+      - name: build baas-cli
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |-
+          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/integrail/baas.git
+          bash <(curl -Ls "https://welder.simple-container.com/welder.sh") make -m baas-cli --timestamps
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        id: upload-artifacts
+        with:
+          name: baas-cli
+          path: dist
+          retention-days: 7

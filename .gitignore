@@ -1,0 +1,13 @@
+
+# IDEA
+.idea
+*.iml
+*.ipr
+
+# BUILD artifacts
+bin
+dist
+
+# SC
+.sc/cfg.default.yaml
+local-debug.env

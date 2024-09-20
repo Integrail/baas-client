@@ -1,0 +1,71 @@
+schemaVersion: "1.8.1"
+projectName: baas
+projectRoot: .
+version: ${env:VERSION:0.0.0}
+default:
+  build:
+    env:
+      GOTOOLCHAIN: go1.22.5
+      CGO_ENABLED: 0
+      GOOS: ${os:name}
+      GOARCH: ${os:arch}
+    args:
+      package: github.com/integrail/baas-client
+profiles:
+  skip-test:
+    activation:
+      skip-tests: true
+modules:
+  - name: baas-client
+    build:
+      steps:
+        - task: tools
+        - task: linters
+        - task: build-all
+tasks:
+  tools:
+    runOn: host
+    script:
+      - cat tools.go | grep _ | awk -F'"' '{print $2}' | xargs -tI % go get %
+      - go mod download
+      - go generate -tags tools
+      - go mod tidy
+  fmt:
+    runOn: host
+    script:
+      - go mod tidy
+      - go run mvdan.cc/gofumpt@v0.6.0 -l -w ./
+      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.3 run --fix --timeout 3m
+  linters:
+    runOn: host
+    script:
+      - go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.3 run --fast --timeout 5m
+  build-all:
+    runOn: host
+    script:
+      - welder run build
+      - welder run build-cli -a os=linux -a arch=amd64
+      - welder run build-cli -a os=darwin -a arch=arm64
+      - welder run build-cli -a os=darwin -a arch=amd64
+  build-cli:
+    runOn: host
+    env:
+      GOOS: ${arg:os:linux}
+      GOARCH: ${arg:arch:amd64}
+      CGO_ENABLED: "0"
+    script:
+      - if [ "${GOOS}" = "windows" ]; then export EXT=".exe"; else export EXT=""; fi
+      - go build -ldflags "-s -w -X=${arg:package}/internal/build.Version=${project:version}" -o ${project:root}/dist/baas-cli-${GOOS}-${GOARCH}${EXT} ./cmd/baas-cli
+  build:
+    runOn: host
+    script:
+      - go build -ldflags "-s -w -X=${arg:package}/internal/build.Version=${project:version}" ./...
+  deploy:
+    runOn: host
+    script:
+      - sc deploy -s baas -e staging --skip-preview --skip-refresh
+  tag-release:
+    runOn: host
+    script:
+      - git tag ${project:version} || echo "Already set tag ${project:version}"
+      - git push -f origin ${project:version} || echo "Tag ${project:version} already exists in origin"
