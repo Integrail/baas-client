@@ -17,7 +17,7 @@ profiles:
       skip-tests: true
 modules:
   - name: baas-client
-    build:
+    build: &build
       steps:
         - task: tools
         - task: linters
@@ -28,6 +28,8 @@ modules:
           autoDeploy: true
       steps:
         - task: tag-release
+  - name: baas-cli
+    build: *build
 tasks:
   tools:
     runOn: host
