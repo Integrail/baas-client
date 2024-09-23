@@ -22,6 +22,12 @@ modules:
         - task: tools
         - task: linters
         - task: build-all
+    deploy:
+      environments:
+        prod:
+          autoDeploy: true
+      steps:
+        - task: tag-release
 tasks:
   tools:
     runOn: host
@@ -60,10 +66,6 @@ tasks:
     runOn: host
     script:
       - go build -ldflags "-s -w -X=${arg:package}/internal/build.Version=${project:version}" ./...
-  deploy:
-    runOn: host
-    script:
-      - sc deploy -s baas -e staging --skip-preview --skip-refresh
   tag-release:
     runOn: host
     script:
