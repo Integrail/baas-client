@@ -30,6 +30,7 @@ type Program interface {
 	InnerHtml(selector string) error
 	IsElementPresent(selector string) (bool, error)
 	LlmClick(description string) error
+	LlmClickElement(elems []string, description string) error
 	LlmSendKeys(description, value string) error
 	LlmText(description string) (string, error)
 	Log(message string) error
@@ -42,10 +43,12 @@ type Program interface {
 	Submit(selector string) error
 	Text(selector string) (string, error)
 	WaitFileDownload(duration string) (bool, error)
+	DownloadFile(fileName string, waitStarted, waitDownloaded string) ([]byte, error)
 	WaitReady(selector string) error
 	WaitVisible(selector string) error
 	SaveScreenshot(name string, fileName string) error
 	FindVisibleElements(elements []string, attributeName string) (string, error)
+	Execute(program string) (any, error)
 }
 
 type Reporter interface {
@@ -225,6 +228,14 @@ func (p *program) LlmSendKeys(description, value string) error {
 	return err
 }
 
+func (p *program) LlmClickElement(elements []string, description string) error {
+	_, err := p.runProgram(fmt.Sprintf("llmClickElement('%s','%s')", strings.Join(elements, ","), description))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p *program) FindVisibleElements(elements []string, addAttributeName string) (string, error) {
 	res, err := p.runProgram(fmt.Sprintf("findVisibleElements('%s','%s')", strings.Join(elements, ","), addAttributeName))
 	if err != nil {
@@ -289,12 +300,45 @@ func (p *program) Text(selector string) (string, error) {
 	return res.Value.(string), nil
 }
 
+func (p *program) WaitFileDownloadStarted(duration string) (bool, error) {
+	res, err := p.runProgram(fmt.Sprintf("waitFileDownloadStarted('%s')", duration))
+	if err != nil {
+		return false, err
+	}
+	return res.Value.(bool), nil
+}
+
 func (p *program) WaitFileDownload(duration string) (bool, error) {
 	res, err := p.runProgram(fmt.Sprintf("waitFileDownload('%s')", duration))
 	if err != nil {
 		return false, err
 	}
 	return res.Value.(bool), nil
+}
+
+func (p *program) DownloadFile(fileName string, waitStarted, waitDownloaded string) ([]byte, error) {
+	res, err := p.runProgram(fmt.Sprintf(`
+			if (!waitFileDownloadStarted('%s')) {
+				throw 'File download did not start within %s';
+			}
+			waitFileDownload('%s')`, waitStarted, waitStarted, waitDownloaded))
+	if err != nil {
+		return nil, err
+	}
+	if len(res.DownloadedFile) == 0 {
+		return nil, errors.Errorf("downloaded file size is zero")
+	}
+	var message string
+	if err := os.WriteFile(fileName, res.DownloadedFile, 0o644); err != nil {
+		message = fmt.Sprintf("failed to save file %s: %q", fileName, err.Error())
+		p.reporter.Report(message)
+		return nil, err
+	} else {
+		message = fmt.Sprintf("%q saved to ", fileName) +
+			termlink.ColorLink(fileName, fmt.Sprintf("file://%s", fileName), "italic green")
+		p.reporter.Report(message)
+	}
+	return res.DownloadedFile, nil
 }
 
 func (p *program) WaitReady(selector string) error {
@@ -370,6 +414,14 @@ func (p *program) LlmLogin(username, password string) error {
 		return err
 	}
 	return nil
+}
+
+func (p *program) Execute(program string) (any, error) {
+	res, err := p.runProgram(program)
+	if err != nil {
+		return "", err
+	}
+	return res.Value, nil
 }
 
 func (p *program) GetURL() (string, error) {

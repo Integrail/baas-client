@@ -1,8 +1,8 @@
 //go:build tools
 
 //go:generate go build -o ./bin/mockery github.com/vektra/mockery/v2
-//go:generate go get mvdan.cc/gofumpt@v0.6.0
-//go:generate go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.3
+//go:generate go build -o ./bin/gofumpt mvdan.cc/gofumpt
+//go:generate go build -o ./bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
 
 // this file references indirect dependencies that are used during the build
 

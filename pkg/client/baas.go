@@ -81,16 +81,16 @@ func (o *baasClient) runClient(ctx context.Context, headers map[string]string, e
 
 func (o *baasClient) Message(ctx context.Context, msg dto.BrowserMessageIn) (*dto.BrowserMessageOut, error) {
 	// generate random request ID
-	msg.RequestID = lo.RandomString(10, lo.LowerCaseLettersCharset)
+	msg.RequestID = lo.RandomString(20, lo.LettersCharset)
 	resp, err := o.runClient(ctx, map[string]string{}, "/api/async/message", msg.Timeout, msg)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to make baas request")
 	}
 	var baasResponseObjects []dto.BrowserMessageOut
 	respBytes := readBytes(resp.Body)
-	// hack to prevent multiple messages to be unmarshalled (only keep the last one)
+	// hack to prevent multiple messages to be unmarshalled (TODO: figure out when this may happen)
 	if strings.Contains(string(respBytes), "}\n{") {
-		respBytes = []byte(strings.Replace(string(respBytes), "}\n{", "},\n{", 1))
+		respBytes = []byte(strings.ReplaceAll(strings.ReplaceAll(string(respBytes), "}{", "},{"), "}\n{", "},\n{"))
 	}
 	respBytes = []byte("[" + string(respBytes) + "]")
 

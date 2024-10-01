@@ -34,6 +34,6 @@ func TestPerfStudioLogin(t *testing.T) {
 	Expect(html).NotTo(BeEmpty())
 	fmt.Println(html)
 
-	err = p.SaveScreenshot("studio", "screenshots/studio.png")
+	err = p.SaveScreenshot("studio", "output/studio.png")
 	Expect(err).To(BeNil())
 }
