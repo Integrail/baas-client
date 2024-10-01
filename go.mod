@@ -9,14 +9,12 @@ require (
 	github.com/charmbracelet/bubbletea v1.1.1
 	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/golangci/golangci-lint v1.61.0
-	github.com/ollama/ollama v0.3.12
 	github.com/onsi/gomega v1.34.2
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.47.0
 	github.com/savioxavier/termlink v1.4.1
 	github.com/simple-container-com/go-aws-lambda-sdk v0.0.0-20240819103806-0ff1af0ea6ff
 	github.com/spf13/cobra v1.8.1
-	github.com/tmc/langchaingo v0.1.12
 	github.com/vektra/mockery/v2 v2.46.1
 	mvdan.cc/gofumpt v0.7.0
 )
@@ -72,7 +70,6 @@ require (
 	github.com/daixiang0/gci v0.13.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
-	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.17.0 // indirect
@@ -168,7 +165,6 @@ require (
 	github.com/nunnatsa/ginkgolinter v0.16.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
-	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.6.0 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect

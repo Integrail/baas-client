@@ -4,17 +4,11 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
 
 	. "github.com/onsi/gomega"
-)
-
-var (
-	selectorRegexp = regexp.MustCompile("`(.+)`")
-	quotesRegexp   = regexp.MustCompile("\"(.+)\"")
 )
 
 type testReporter struct{}
@@ -41,20 +35,4 @@ func newLocalDebugProgram(t *testing.T, opts ...Option) (Program, context.Cancel
 	Expect(err).To(BeNil())
 
 	return p, cancel
-}
-
-func llmExtractSingleSelectorFromResponse(resp string) string {
-	selector := resp
-	if extracted := selectorRegexp.FindAllStringSubmatch(resp, 1); selectorRegexp.MatchString(resp) && len(extracted) > 0 {
-		selector = strings.TrimSpace(extracted[0][1])
-	}
-	if extracted := quotesRegexp.FindAllStringSubmatch(resp, 1); quotesRegexp.MatchString(resp) && len(extracted) > 0 {
-		selector = strings.TrimSpace(extracted[0][1])
-	}
-	selector = strings.TrimSpace(strings.Split(selector, "\n")[0])
-	multiSelector := strings.Split(selector, ",")
-	if len(multiSelector) > 1 {
-		selector = multiSelector[0]
-	}
-	return selector
 }
