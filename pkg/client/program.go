@@ -20,6 +20,7 @@ type Program interface {
 	NavigateStatus(url string) (int, error)
 	TakeScreenshot(name string) ([]byte, error)
 	LlmSetValue(desc, value string) error
+	LlmSetValueSkipVerify(desc, value string) error
 	LlmLogin(username, password string) error
 	GetURL() (string, error)
 	Click(selector string) error
@@ -349,6 +350,14 @@ func (p *program) SaveScreenshot(name string, fileName string) error {
 
 func (p *program) LlmSetValue(desc, value string) error {
 	_, err := p.runProgram(fmt.Sprintf("llmSetValue('%s', '%s')", desc, value))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *program) LlmSetValueSkipVerify(desc, value string) error {
+	_, err := p.runProgram(fmt.Sprintf("llmSetValueSkipVerify('%s', '%s')", desc, value))
 	if err != nil {
 		return err
 	}
