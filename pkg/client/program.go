@@ -464,7 +464,7 @@ func (p *program) addArgs(opts []ActionOption) string {
 	}
 	addArgsString := ""
 	if len(addArgs) > 0 {
-		addArgsString = fmt.Sprintf("'%s'", strings.Join(addArgs, "','"))
+		addArgsString = ", " + fmt.Sprintf("'%s'", strings.Join(addArgs, "','"))
 	}
 	return addArgsString
 }
