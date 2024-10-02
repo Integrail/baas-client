@@ -89,6 +89,7 @@ func NewProgram(ctx context.Context, cfg Config, reporter Reporter, opts ...Opti
 		ctx:      ctx,
 		cancel:   cancel,
 		reporter: reporter,
+		cfg:      cfg,
 	}
 
 	for _, opt := range opts {
@@ -141,6 +142,7 @@ type program struct {
 	reporter  Reporter
 	secrets   map[string]string
 	values    map[string]string
+	cfg       Config
 }
 
 func (p *program) Error() error {
@@ -161,7 +163,7 @@ func (p *program) runProgram(prog string) (*dto.BrowserMessageOut, error) {
 		Program:   prog,
 		Secrets:   p.secrets,
 		Values:    p.values,
-		Timeout:   "60s",
+		Timeout:   p.cfg.MessageTimeout,
 	})
 	p.reporter.Report(fmt.Sprintf("Got result: %v (%s), %v", lo.FromPtr(res).Value, lo.FromPtr(res).Error, err))
 	if err != nil {
