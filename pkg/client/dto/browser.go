@@ -35,12 +35,15 @@ type BrowserOpts struct {
 }
 
 type BrowserMessageIn struct {
-	SessionID string            `json:"sessionID" required:"true"`           // sessionID to send event to
-	RequestID string            `json:"requestID"`                           // ID of the current request (used for internal purposes)
-	Program   string            `json:"program" required:"true"`             // program to run (required)
-	Secrets   map[string]string `json:"secrets" required:"false"`            // program secrets to use (values can be obtained as getSecret('name'))
-	Values    map[string]string `json:"values" required:"false"`             // program values to use (values can be obtained as getValue('name'))
-	Timeout   string            `json:"timeout" example:"10s" default:"10s"` // timeout to process message
+	SessionID               string            `json:"sessionID" required:"true"`                               // sessionID to send event to
+	RequestID               string            `json:"requestID"`                                               // ID of the current request (used for internal purposes)
+	Program                 string            `json:"program" required:"true"`                                 // program to run (required)
+	Secrets                 map[string]string `json:"secrets" required:"false"`                                // program secrets to use (values can be obtained as getSecret('name'))
+	Values                  map[string]string `json:"values" required:"false"`                                 // program values to use (values can be obtained as getValue('name'))
+	Timeout                 string            `json:"timeout" example:"10s" default:"10s"`                     // timeout to process message
+	OperationTimeout        *string           `json:"operationTimeout" example:"20s" default:"20s"`            // timeout to execute a single command (default: 20s)
+	StopSession             *bool             `json:"stopSession" example:"true" default:"false"`              // tells browser to stop session
+	ErrorOnOperationTimeout *bool             `json:"errorOnOperationTimeout" required:"false" default:"true"` // whether to return error when a single operation times out (default: true)
 }
 
 func (i *BrowserMessageIn) Sanitized() any {
@@ -62,6 +65,7 @@ type BrowserMessageOut struct {
 	Log                []string           `json:"log,omitempty"`
 	DownloadedFile     []byte             `json:"downloadedFile,omitempty"`
 	DownloadedFileName string             `json:"downloadedFileName,omitempty"`
+	OutHTML            string             `json:"outHtml"`
 }
 
 type BrowserCookie struct {

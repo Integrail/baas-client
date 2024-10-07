@@ -35,7 +35,8 @@ type Program interface {
 	GetInnerText(selector string, opts ...ActionOption) (string, error)
 	GetSecret(name string, opts ...ActionOption) (string, error)
 	GetValue(name string, opts ...ActionOption) (string, error)
-	InnerHtml(selector string, opts ...ActionOption) error
+	OuterHtml(selector string, opts ...ActionOption) (string, error)
+	InnerHtml(selector string, opts ...ActionOption) (string, error)
 	IsElementPresent(selector string, opts ...ActionOption) (bool, error)
 	LlmClick(description string, opts ...ActionOption) error
 	LlmClickElement(elems []string, description string, opts ...ActionOption) error
@@ -44,7 +45,6 @@ type Program interface {
 	Log(message string, opts ...ActionOption) error
 	LogURL(opts ...ActionOption) error
 	Navigate(url string, opts ...ActionOption) error
-	OuterHtml(selector string, opts ...ActionOption) error
 	ReplaceInnerHtml(selector, html string, opts ...ActionOption) error
 	SendKeys(text string, opts ...ActionOption) error
 	Sleep(duration string, opts ...ActionOption) error
@@ -215,11 +215,6 @@ func (p *program) GetValue(name string, opts ...ActionOption) (string, error) {
 	return res.Value.(string), nil
 }
 
-func (p *program) InnerHtml(selector string, opts ...ActionOption) error {
-	_, err := p.runProgram(p.functionCall1("innerHtml", selector, opts...))
-	return err
-}
-
 func (p *program) IsElementPresent(selector string, opts ...ActionOption) (bool, error) {
 	res, err := p.runProgram(p.functionCall1("isElementPresent", selector, opts...))
 	if err != nil {
@@ -277,9 +272,20 @@ func (p *program) Navigate(url string, opts ...ActionOption) error {
 	return err
 }
 
-func (p *program) OuterHtml(selector string, opts ...ActionOption) error {
-	_, err := p.runProgram(p.functionCall1("outerHtml", selector, opts...))
-	return err
+func (p *program) OuterHtml(selector string, opts ...ActionOption) (string, error) {
+	res, err := p.runProgram(p.functionCall1("outerHtml", selector, opts...))
+	if err != nil {
+		return "", err
+	}
+	return res.OutHTML, nil
+}
+
+func (p *program) InnerHtml(selector string, opts ...ActionOption) (string, error) {
+	res, err := p.runProgram(p.functionCall1("innerHtml", selector, opts...))
+	if err != nil {
+		return "", err
+	}
+	return res.OutHTML, nil
 }
 
 func (p *program) ReplaceInnerHtml(selector, html string, opts ...ActionOption) error {
