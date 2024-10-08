@@ -340,7 +340,7 @@ func (p *program) DownloadFile(fileName string, waitStarted, waitDownloaded stri
 			%s`,
 		p.functionCall1("waitFileDownloadStarted", waitStarted, opts...),
 		waitStarted,
-		p.functionCall1("waitDownloaded", waitDownloaded, opts...)))
+		p.functionCall1("waitFileDownload", waitDownloaded, opts...)))
 	if err != nil {
 		return nil, err
 	}
