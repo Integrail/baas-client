@@ -57,6 +57,7 @@ type Program interface {
 	SaveScreenshot(name string, fileName string, opts ...ActionOption) error
 	FindVisibleElements(elements []string, attributeName string, opts ...ActionOption) (string, error)
 	Execute(program string, opts ...ActionOption) (any, error)
+	DragAndDrop(selectorDrag string, selectorDrop string) error
 }
 
 type Reporter interface {
@@ -473,4 +474,47 @@ func (p *program) addArgs(opts []ActionOption) string {
 		addArgsString = ", " + fmt.Sprintf("'%s'", strings.Join(addArgs, "','"))
 	}
 	return addArgsString
+}
+
+func (p *program) DragAndDrop(selectorDrag string, selectorDrop string) error {
+	prog := fmt.Sprintf(`
+        function triggerDragAndDrop(selectorDrag, selectorDrop) {
+            var elementDrag = document.querySelector(selectorDrag);
+            var elementDrop = document.querySelector(selectorDrop);
+
+            var event = new MouseEvent('mousedown', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                clientX: elementDrag.getBoundingClientRect().left + 5,
+                clientY: elementDrag.getBoundingClientRect().top + 5
+            });
+            elementDrag.dispatchEvent(event);
+
+            var event = new MouseEvent('mousemove', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                clientX: elementDrop.getBoundingClientRect().left + 5,
+                clientY: elementDrop.getBoundingClientRect().top + 5
+            });
+            elementDrag.dispatchEvent(event);
+
+            var event = new MouseEvent('mouseup', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                clientX: elementDrop.getBoundingClientRect().left + 5,
+                clientY: elementDrop.getBoundingClientRect().top + 5
+            });
+            elementDrop.dispatchEvent(event);
+        }
+        triggerDragAndDrop('%s', '%s');
+    `, selectorDrag, selectorDrop)
+
+	_, err := p.runProgram(prog)
+	if err != nil {
+		return err
+	}
+	return nil
 }
