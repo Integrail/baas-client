@@ -51,6 +51,7 @@ type Program interface {
 	Submit(selector string, opts ...ActionOption) error
 	Text(selector string, opts ...ActionOption) (string, error)
 	WaitFileDownload(duration string, opts ...ActionOption) (bool, error)
+	ExecuteAndDownloadFile(program string, fileName string, waitStarted, waitDownloaded string, opts ...ActionOption) ([]byte, error)
 	DownloadFile(fileName string, waitStarted, waitDownloaded string, opts ...ActionOption) ([]byte, error)
 	WaitReady(selector string, opts ...ActionOption) error
 	WaitVisible(selector string, opts ...ActionOption) error
@@ -325,19 +326,21 @@ func (p *program) WaitFileDownloadStarted(duration string, opts ...ActionOption)
 }
 
 func (p *program) WaitFileDownload(duration string, opts ...ActionOption) (bool, error) {
-	res, err := p.runProgram(p.functionCall1("waitDownloaded", duration, opts...))
+	res, err := p.runProgram(p.functionCall1("waitFileDownload", duration, opts...))
 	if err != nil {
 		return false, err
 	}
 	return res.Value.(bool), nil
 }
 
-func (p *program) DownloadFile(fileName string, waitStarted, waitDownloaded string, opts ...ActionOption) ([]byte, error) {
+func (p *program) ExecuteAndDownloadFile(program string, fileName string, waitStarted, waitDownloaded string, opts ...ActionOption) ([]byte, error) {
 	res, err := p.runProgram(fmt.Sprintf(`
+			%s
 			if (!%s) {
 				throw 'File download did not start within %s';
 			}
 			%s`,
+		program,
 		p.functionCall1("waitFileDownloadStarted", waitStarted, opts...),
 		waitStarted,
 		p.functionCall1("waitFileDownload", waitDownloaded, opts...)))
@@ -358,6 +361,10 @@ func (p *program) DownloadFile(fileName string, waitStarted, waitDownloaded stri
 		p.reporter.Report(message)
 	}
 	return res.DownloadedFile, nil
+}
+
+func (p *program) DownloadFile(fileName string, waitStarted, waitDownloaded string, opts ...ActionOption) ([]byte, error) {
+	return p.ExecuteAndDownloadFile("", fileName, waitStarted, waitDownloaded, opts...)
 }
 
 func (p *program) WaitReady(selector string, opts ...ActionOption) error {
