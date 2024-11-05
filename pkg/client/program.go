@@ -65,14 +65,15 @@ type Reporter interface {
 }
 
 type Config struct {
-	UseProxy       bool     `json:"useProxy" yaml:"useProxy"`
-	LocalDebug     bool     `json:"localDebug" yaml:"localDebug"`
-	Url            string   `json:"url" yaml:"url"`
-	ApiKey         string   `json:"apiKey" yaml:"apiKey"`
-	Timeout        string   `json:"timeout" yaml:"timeout"`
-	MessageTimeout string   `json:"messageTimeout" yaml:"messageTimeout"`
-	Secrets        []string `json:"secrets" yaml:"secrets"`
-	Values         []string `json:"values" yaml:"values"`
+	UseProxy       bool                `json:"useProxy" yaml:"useProxy"`
+	LocalDebug     bool                `json:"localDebug" yaml:"localDebug"`
+	Url            string              `json:"url" yaml:"url"`
+	ApiKey         string              `json:"apiKey" yaml:"apiKey"`
+	Timeout        string              `json:"timeout" yaml:"timeout"`
+	MessageTimeout string              `json:"messageTimeout" yaml:"messageTimeout"`
+	Secrets        []string            `json:"secrets" yaml:"secrets"`
+	Values         []string            `json:"values" yaml:"values"`
+	Cookies        []dto.BrowserCookie `json:"cookies" yaml:"cookies"`
 }
 
 type Option func(p *program)
@@ -112,6 +113,7 @@ func NewProgram(ctx context.Context, cfg Config, reporter Reporter, opts ...Opti
 				Headful:          cfg.LocalDebug,
 				ReturnScreenshot: lo.ToPtr(true),
 				Timeout:          cfg.Timeout,
+				Cookies:          cfg.Cookies,
 			},
 			UseRandomProxy: lo.ToPtr(cfg.UseProxy),
 		})
