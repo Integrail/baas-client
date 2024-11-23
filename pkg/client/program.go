@@ -23,6 +23,24 @@ func WithTimeout(timeout string) ActionOption {
 	}
 }
 
+func WithSelector(selector string) ActionOption {
+	return func(args []string) []string {
+		return append(args, fmt.Sprintf("selector:%s", selector))
+	}
+}
+
+func WithIncludeInvisible() ActionOption {
+	return func(args []string) []string {
+		return append(args, "includeInvisible")
+	}
+}
+
+func WithIframe(selector string) ActionOption {
+	return func(args []string) []string {
+		return append(args, fmt.Sprintf("iframe:%s", selector))
+	}
+}
+
 type Program interface {
 	Error() error
 	NavigateStatus(url string, opts ...ActionOption) (int, error)
