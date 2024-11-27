@@ -29,6 +29,12 @@ func WithSelector(selector string) ActionOption {
 	}
 }
 
+func WithSecretArgs() ActionOption {
+	return func(args []string) []string {
+		return append(args, "secretArgs")
+	}
+}
+
 func WithIncludeInvisible() ActionOption {
 	return func(args []string) []string {
 		return append(args, "includeInvisible")
