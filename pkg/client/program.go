@@ -82,6 +82,7 @@ type Program interface {
 	SaveScreenshot(name string, fileName string, opts ...ActionOption) error
 	FindVisibleElements(elements []string, attributeName string, opts ...ActionOption) (string, error)
 	Execute(program string, opts ...ActionOption) (any, error)
+	DragAndDropBySelectors(from, to string, opts ...ActionOption) error
 }
 
 type Reporter interface {
@@ -391,6 +392,11 @@ func (p *program) ExecuteAndDownloadFile(program string, fileName string, waitSt
 
 func (p *program) DownloadFile(fileName string, waitStarted, waitDownloaded string, opts ...ActionOption) ([]byte, error) {
 	return p.ExecuteAndDownloadFile("", fileName, waitStarted, waitDownloaded, opts...)
+}
+
+func (p *program) DragAndDropBySelectors(from, to string, opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall2("dragAndDropBySelectors", from, to, opts...))
+	return err
 }
 
 func (p *program) WaitReady(selector string, opts ...ActionOption) error {
