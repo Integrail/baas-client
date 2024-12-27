@@ -75,6 +75,7 @@ type Program interface {
 	GetURL(opts ...ActionOption) (string, error)
 	Click(selector string, opts ...ActionOption) error
 	ClickN(selector string, index int, opts ...ActionOption) error
+	GetElementValueN(selector string, index int, opts ...ActionOption) (string, error)
 	SetValueN(selector string, index int, value string, opts ...ActionOption) error
 	GetInnerText(selector string, opts ...ActionOption) (string, error)
 	GetSecret(name string, opts ...ActionOption) (string, error)
@@ -237,6 +238,14 @@ func (p *program) SetValueN(selector string, index int, value string, opts ...Ac
 		return err
 	}
 	return nil
+}
+
+func (p *program) GetElementValueN(selector string, index int, opts ...ActionOption) (string, error) {
+	res, err := p.runProgram(fmt.Sprintf("getElementValueN('%s', %d, %s)", selector, index, p.addArgs(opts)))
+	if err != nil {
+		return "", err
+	}
+	return res.Value.(string), nil
 }
 
 func (p *program) ClickN(selector string, index int, opts ...ActionOption) error {
