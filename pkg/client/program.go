@@ -17,6 +17,24 @@ import (
 
 type ActionOption func(args []string) []string
 
+func WithoutTimeout() ActionOption {
+	return func(args []string) []string {
+		return append(args, "withoutTimeout")
+	}
+}
+
+func WithAllowTags(tags ...string) ActionOption {
+	return func(args []string) []string {
+		return append(args, fmt.Sprintf("allowTags:%s", strings.Join(tags, ",")))
+	}
+}
+
+func WithAllowAttrs(attrs ...string) ActionOption {
+	return func(args []string) []string {
+		return append(args, fmt.Sprintf("allowAttributes:%s", strings.Join(attrs, ",")))
+	}
+}
+
 func WithTimeout(timeout string) ActionOption {
 	return func(args []string) []string {
 		return append(args, fmt.Sprintf("timeout:%s", timeout))
