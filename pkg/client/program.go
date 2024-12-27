@@ -56,6 +56,8 @@ type Program interface {
 	LlmLogin(username, password string, opts ...ActionOption) error
 	GetURL(opts ...ActionOption) (string, error)
 	Click(selector string, opts ...ActionOption) error
+	ClickN(selector string, index int, opts ...ActionOption) error
+	SetValueN(selector string, index int, value string, opts ...ActionOption) error
 	GetInnerText(selector string, opts ...ActionOption) (string, error)
 	GetSecret(name string, opts ...ActionOption) (string, error)
 	GetValue(name string, opts ...ActionOption) (string, error)
@@ -209,6 +211,22 @@ func (p *program) runProgram(prog string) (*dto.BrowserMessageOut, error) {
 		return nil, errors.Errorf("%s", res.Error)
 	}
 	return res, nil
+}
+
+func (p *program) SetValueN(selector string, index int, value string, opts ...ActionOption) error {
+	_, err := p.runProgram(fmt.Sprintf("setValueN('%s', %d, '%s', %s)", selector, index, value, p.addArgs(opts)))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *program) ClickN(selector string, index int, opts ...ActionOption) error {
+	_, err := p.runProgram(fmt.Sprintf("clickN('%s', %d, %s)", selector, index, p.addArgs(opts)))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p *program) Click(selector string, opts ...ActionOption) error {
