@@ -4,6 +4,9 @@ import (
 	"context"
 	"os"
 
+	"github.com/integrail/baas-client/pkg/client/dto"
+	"github.com/integrail/baas-client/pkg/util"
+
 	"github.com/integrail/baas-client/pkg/client"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,12 +28,22 @@ func main() {
 	cfg.LocalDebug = false
 	cfg.UseProxy = true
 
+	var cookiesSlice []string
+	var cookieDomain string
 	rootCmd := &cobra.Command{
 		Use:     "baas",
 		Version: build.Version,
 		Short:   "BaaS is a Browser as a Service",
 		Long:    "Easy way to control chrome browser within AWS Lambda",
 		Run: func(cmd *cobra.Command, args []string) {
+			for k, v := range util.SliceToMap(cookiesSlice) {
+				cfg.Cookies = append(cfg.Cookies, dto.BrowserCookie{
+					Name:   k,
+					Value:  v,
+					Domain: cookieDomain,
+					Path:   "/",
+				})
+			}
 			startBaasClient(cfg)
 		},
 	}
@@ -42,6 +55,8 @@ func main() {
 	rootCmd.PersistentFlags().StringVarP(&cfg.MessageTimeout, "message-timeout", "M", "30s", "Max time to wait for each message, default: 30s")
 	rootCmd.PersistentFlags().StringSliceVarP(&cfg.Secrets, "secret", "S", []string{}, "Secrets to send to backend with each async request")
 	rootCmd.PersistentFlags().StringSliceVarP(&cfg.Values, "value", "V", []string{}, "Values to send to backend with each async request")
+	rootCmd.PersistentFlags().StringSliceVarP(&cookiesSlice, "cookie", "C", []string{}, "Cookies to send to backend with each async request")
+	rootCmd.PersistentFlags().StringVarP(&cookieDomain, "cookie-domain", "D", "", "Cookies domain to set with cookies backend with each async request")
 
 	err := rootCmd.Execute()
 	if err != nil {

@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/integrail/baas-client/pkg/util"
+
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -181,14 +183,8 @@ func (m *CliClient) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					SessionID: m.sessionID,
 					Program:   currentValue,
 					Timeout:   m.cfg.MessageTimeout,
-					Values: lo.SliceToMap(m.cfg.Values, func(s string) (string, string) {
-						parts := strings.SplitN(s, "=", 2)
-						return parts[0], parts[1]
-					}),
-					Secrets: lo.SliceToMap(m.cfg.Secrets, func(s string) (string, string) {
-						parts := strings.SplitN(s, "=", 2)
-						return parts[0], parts[1]
-					}),
+					Values:    util.SliceToMap(m.cfg.Values),
+					Secrets:   util.SliceToMap(m.cfg.Secrets),
 				})
 				m.processResponse(res, err)
 			}()
