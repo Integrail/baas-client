@@ -89,6 +89,8 @@ type Program interface {
 	LogURL(opts ...ActionOption) error
 	Navigate(url string, opts ...ActionOption) error
 	Reload(opts ...ActionOption) error
+	ScrollToBottom(opts ...ActionOption) error
+	EvaluateJS(script string, opts ...ActionOption) (any, error)
 	ReplaceInnerHtml(selector, html string, opts ...ActionOption) error
 	GetElementValueN(selector string, index int, opts ...ActionOption) (string, error)
 	SetValueN(selector string, index int, value string, opts ...ActionOption) error
@@ -354,6 +356,15 @@ func (p *program) Log(message string, opts ...ActionOption) error {
 func (p *program) LogURL(opts ...ActionOption) error {
 	_, err := p.runProgram(p.functionCall0("logURL", opts...))
 	return err
+}
+
+func (p *program) ScrollToBottom(opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall0("scrollToBottom", opts...))
+	return err
+}
+
+func (p *program) EvaluateJS(script string, opts ...ActionOption) (any, error) {
+	return p.runProgram(p.functionCall1("evaluateJS", script, opts...))
 }
 
 func (p *program) Reload(opts ...ActionOption) error {
