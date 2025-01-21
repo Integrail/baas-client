@@ -75,14 +75,12 @@ type Program interface {
 	GetURL(opts ...ActionOption) (string, error)
 	Click(selector string, opts ...ActionOption) error
 	ClickN(selector string, index int, opts ...ActionOption) error
-	GetElementValueN(selector string, index int, opts ...ActionOption) (string, error)
-	SetValueN(selector string, index int, value string, opts ...ActionOption) error
-	GetInnerText(selector string, opts ...ActionOption) (string, error)
 	GetSecret(name string, opts ...ActionOption) (string, error)
 	GetValue(name string, opts ...ActionOption) (string, error)
 	OuterHtml(selector string, opts ...ActionOption) (string, error)
 	InnerHtml(selector string, opts ...ActionOption) (string, error)
 	IsElementPresent(selector string, opts ...ActionOption) (bool, error)
+	CountElements(selector string, opts ...ActionOption) (int, error)
 	LlmClick(description string, opts ...ActionOption) error
 	LlmClickElement(elems []string, description string, opts ...ActionOption) error
 	LlmSendKeys(description, value string, opts ...ActionOption) error
@@ -90,7 +88,12 @@ type Program interface {
 	Log(message string, opts ...ActionOption) error
 	LogURL(opts ...ActionOption) error
 	Navigate(url string, opts ...ActionOption) error
+	Reload(opts ...ActionOption) error
 	ReplaceInnerHtml(selector, html string, opts ...ActionOption) error
+	GetElementValueN(selector string, index int, opts ...ActionOption) (string, error)
+	SetValueN(selector string, index int, value string, opts ...ActionOption) error
+	GetInnerText(selector string, opts ...ActionOption) (string, error)
+	SendKeysToElement(selector string, keys string, opts ...ActionOption) error
 	SendKeys(text string, opts ...ActionOption) error
 	Sleep(duration string, opts ...ActionOption) error
 	Submit(selector string, opts ...ActionOption) error
@@ -288,6 +291,19 @@ func (p *program) GetValue(name string, opts ...ActionOption) (string, error) {
 	return res.Value.(string), nil
 }
 
+func (p *program) SendKeysToElement(selector string, keys string, opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall2("sendKeysToElement", selector, keys, opts...))
+	return err
+}
+
+func (p *program) CountElements(selector string, opts ...ActionOption) (int, error) {
+	res, err := p.runProgram(p.functionCall1("countElements", selector, opts...))
+	if err != nil {
+		return 0, err
+	}
+	return res.Value.(int), nil
+}
+
 func (p *program) IsElementPresent(selector string, opts ...ActionOption) (bool, error) {
 	res, err := p.runProgram(p.functionCall1("isElementPresent", selector, opts...))
 	if err != nil {
@@ -337,6 +353,11 @@ func (p *program) Log(message string, opts ...ActionOption) error {
 
 func (p *program) LogURL(opts ...ActionOption) error {
 	_, err := p.runProgram(p.functionCall0("logURL", opts...))
+	return err
+}
+
+func (p *program) Reload(opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall0("navigate", opts...))
 	return err
 }
 
