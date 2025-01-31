@@ -238,7 +238,7 @@ func (p *program) runProgram(prog string) (*dto.BrowserMessageOut, error) {
 }
 
 func (p *program) SetValueN(selector string, index int, value string, opts ...ActionOption) error {
-	_, err := p.runProgram(fmt.Sprintf("setValueN('%s', %d, '%s', %s)", selector, index, value, p.addArgs(opts)))
+	_, err := p.runProgram(fmt.Sprintf("setValueN('%s', %d, '%s'%s)", selector, index, value, p.addArgs(opts)))
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func (p *program) SetValueN(selector string, index int, value string, opts ...Ac
 }
 
 func (p *program) GetElementValueN(selector string, index int, opts ...ActionOption) (string, error) {
-	res, err := p.runProgram(fmt.Sprintf("getElementValueN('%s', %d, %s)", selector, index, p.addArgs(opts)))
+	res, err := p.runProgram(fmt.Sprintf("getElementValueN('%s', %d%s)", selector, index, p.addArgs(opts)))
 	if err != nil {
 		return "", err
 	}
@@ -254,7 +254,7 @@ func (p *program) GetElementValueN(selector string, index int, opts ...ActionOpt
 }
 
 func (p *program) ClickN(selector string, index int, opts ...ActionOption) error {
-	_, err := p.runProgram(fmt.Sprintf("clickN('%s', %d, %s)", selector, index, p.addArgs(opts)))
+	_, err := p.runProgram(fmt.Sprintf("clickN('%s', %d%s)", selector, index, p.addArgs(opts)))
 	if err != nil {
 		return err
 	}
