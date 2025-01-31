@@ -303,7 +303,7 @@ func (p *program) CountElements(selector string, opts ...ActionOption) (int, err
 	if err != nil {
 		return 0, err
 	}
-	return res.Value.(int), nil
+	return int(res.Value.(float64)), nil
 }
 
 func (p *program) IsElementPresent(selector string, opts ...ActionOption) (bool, error) {
