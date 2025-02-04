@@ -109,6 +109,10 @@ type Program interface {
 	FindVisibleElements(elements []string, attributeName string, opts ...ActionOption) (string, error)
 	Execute(program string, opts ...ActionOption) (any, error)
 	DragAndDropBySelectors(from, to string, opts ...ActionOption) error
+	ScrollIntoView(selector string, opts ...ActionOption) error
+	WaitForHtml(textOrHtml string, opts ...ActionOption) error
+	WaitForText(text string, opts ...ActionOption) error
+	GetElementInnerTextN(selector string, index int, opts ...ActionOption) (string, error)
 }
 
 type Reporter interface {
@@ -269,12 +273,35 @@ func (p *program) Click(selector string, opts ...ActionOption) error {
 	return nil
 }
 
+func (p *program) GetElementInnerTextN(selector string, index int, opts ...ActionOption) (string, error) {
+	res, err := p.runProgram(fmt.Sprintf("getElementInnerTextN('%s', %d%s)", selector, index, p.addArgs(opts)))
+	if err != nil {
+		return "", err
+	}
+	return res.Value.(string), nil
+}
+
 func (p *program) GetInnerText(selector string, opts ...ActionOption) (string, error) {
 	res, err := p.runProgram(p.functionCall1("getInnerText", selector, opts...))
 	if err != nil {
 		return "", err
 	}
 	return res.Value.(string), nil
+}
+
+func (p *program) ScrollIntoView(selector string, opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall1("scrollIntoView", selector, opts...))
+	return err
+}
+
+func (p *program) WaitForHtml(textOrHtml string, opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall1("waitForHtml", textOrHtml, opts...))
+	return err
+}
+
+func (p *program) WaitForText(text string, opts ...ActionOption) error {
+	_, err := p.runProgram(p.functionCall1("waitForText", text, opts...))
+	return err
 }
 
 func (p *program) GetSecret(name string, opts ...ActionOption) (string, error) {
