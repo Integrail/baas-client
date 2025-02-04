@@ -110,6 +110,7 @@ type Program interface {
 	Execute(program string, opts ...ActionOption) (any, error)
 	DragAndDropBySelectors(from, to string, opts ...ActionOption) error
 	ScrollIntoView(selector string, opts ...ActionOption) error
+	ScrollIntoViewN(selector string, index int, opts ...ActionOption) error
 	WaitForHtml(textOrHtml string, opts ...ActionOption) error
 	WaitForText(text string, opts ...ActionOption) error
 	GetElementInnerTextN(selector string, index int, opts ...ActionOption) (string, error)
@@ -287,6 +288,11 @@ func (p *program) GetInnerText(selector string, opts ...ActionOption) (string, e
 		return "", err
 	}
 	return res.Value.(string), nil
+}
+
+func (p *program) ScrollIntoViewN(selector string, index int, opts ...ActionOption) error {
+	_, err := p.runProgram(fmt.Sprintf("scrollIntoViewN('%s', %d%s)", selector, index, p.addArgs(opts)))
+	return err
 }
 
 func (p *program) ScrollIntoView(selector string, opts ...ActionOption) error {
