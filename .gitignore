@@ -11,3 +11,4 @@ dist
 # SC
 .sc/cfg.default.yaml
 local-debug.env
+.sc/analysis-cache.json
